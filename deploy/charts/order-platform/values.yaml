@@ -1,0 +1,54 @@
+# Defaults. Environment overlays in deploy/env/<env>/values.yaml override these,
+# and CI rewrites the image tags there — never here.
+global:
+  registry: nexus:8082
+  imagePullSecret: nexus-pull
+
+kafka:
+  brokers: "orders-kafka-bootstrap.kafka.svc.cluster.local:9092"
+  topic: "orders"
+
+aws:
+  endpointUrl: "http://floci.floci.svc.cluster.local:4566"
+  region: "us-east-1"
+  s3Bucket: "orders-raw"
+  ddbTable: "orders"
+
+orderApi:
+  enabled: true
+  image:
+    repository: shop/order-api
+    tag: "dev"
+  replicas: 2
+  port: 8000
+  secretName: order-api-secrets     # produced by the ExternalSecret in §7.6
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits:   { memory: 256Mi }
+  ingress:
+    enabled: true
+    className: nginx
+    host: shop.localtest.me
+
+orderWorker:
+  enabled: true
+  image:
+    repository: shop/order-worker
+    tag: "dev"
+  replicas: 2          # <= partition count (3), see §8.3
+  metricsPort: 9090
+  consumerGroup: order-worker
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits:   { memory: 128Mi }
+
+podMonitor:
+  # false until §13.2 installs kube-prometheus-stack and with it the
+  # monitoring.coreos.com CRDs. Argo CD does not skip a resource whose CRD is
+  # missing — it fails the whole sync, so leaving this true strands every
+  # workload in `shop` as Missing. Flip to true in §13.3 and commit.
+  enabled: false
+  interval: 15s
+
+scaffolded:
+  tag: "dev"     # CI overwrites this in the env overlay, same as the other two

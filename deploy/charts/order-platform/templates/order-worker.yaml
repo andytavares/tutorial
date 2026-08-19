@@ -1,0 +1,87 @@
+{{- if .Values.orderWorker.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: order-worker
+  labels: {{- include "op.labels" (dict "name" "order-worker" "root" $) | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-worker
+  labels: {{- include "op.labels" (dict "name" "order-worker" "root" $) | nindent 4 }}
+spec:
+  replicas: {{ .Values.orderWorker.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-worker
+  strategy:
+    # A consumer group rebalances on every membership change. Rolling one pod at
+    # a time keeps rebalances short; surging would add a member and then remove
+    # one, causing two rebalances per pod instead of one.
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 0, maxUnavailable: 1 }
+  template:
+    metadata:
+      labels: {{- include "op.labels" (dict "name" "order-worker" "root" $) | nindent 8 }}
+      annotations:
+        checksum/config: {{ toJson .Values | sha256sum }}
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: {{ .Values.orderWorker.metricsPort | quote }}
+    spec:
+      # Same reason as order-api: no Docker-link env vars in this pod.
+      enableServiceLinks: false
+      serviceAccountName: order-worker
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecret }}
+      # Give the worker time to finish the in-flight batch and commit offsets
+      # after SIGTERM before Kubernetes SIGKILLs it.
+      terminationGracePeriodSeconds: 45
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: order-worker
+          image: {{ include "op.image" (dict "root" $ "img" .Values.orderWorker.image) }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            # http-metrics, not metrics. Istio reads the protocol off the port
+            # name, and a name it does not recognise is treated as plain TCP.
+            - { name: http-metrics, containerPort: {{ .Values.orderWorker.metricsPort }} }
+          env:
+            {{- include "op.commonEnv" . | nindent 12 }}
+            - name: DDB_TABLE
+              value: {{ .Values.aws.ddbTable | quote }}
+            - name: KAFKA_GROUP
+              value: {{ .Values.orderWorker.consumerGroup | quote }}
+            - name: SERVICE_VERSION
+              value: {{ .Values.orderWorker.image.tag | quote }}
+          startupProbe:
+            httpGet: { path: /healthz, port: http-metrics }
+            failureThreshold: 30
+            periodSeconds: 2
+          livenessProbe:
+            httpGet: { path: /healthz, port: http-metrics }
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /readyz, port: http-metrics }
+            periodSeconds: 5
+          resources: {{- toYaml .Values.orderWorker.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-worker
+  labels: {{- include "op.labels" (dict "name" "order-worker" "root" $) | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: order-worker
+  ports:
+    - { name: http-metrics, port: 9090, targetPort: http-metrics }
+{{- end }}

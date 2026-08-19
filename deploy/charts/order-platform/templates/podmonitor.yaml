@@ -1,0 +1,31 @@
+{{- if .Values.podMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: order-platform
+  labels:
+    # kube-prometheus-stack's Prometheus selects monitors by this label in the
+    # default configuration we install in §13.
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames: ["shop"]
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: order-platform
+  podMetricsEndpoints:
+    # istio-proxy's MERGED endpoint on 15020: our application metrics (scraped
+    # over loopback inside the pod, per the prometheus.io/* annotations above)
+    # plus Envoy's and Istio's. One scrape, all of it, and it survives STRICT.
+    #
+    # It must be 15020 and it must be addressed by number. Istio: "forwards
+    # requests to the sidecar telemetry port 15020 for merged metrics or 15090
+    # for Envoy-only metrics". 15090 is the one carrying the port NAME
+    # `http-envoy-prom`; 15020 is unnamed in the pod spec, so `port:` cannot
+    # reach it and `portNumber:` is required. Selecting http-envoy-prom gets
+    # you istio_requests_total (Kiali works) but never the application's own
+    # metrics, which is a silent half-failure.
+    - portNumber: 15020
+      path: /stats/prometheus
+      interval: {{ .Values.podMonitor.interval }}
+{{- end }}

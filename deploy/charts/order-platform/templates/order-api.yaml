@@ -1,0 +1,114 @@
+{{- if .Values.orderApi.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: order-api
+  labels: {{- include "op.labels" (dict "name" "order-api" "root" $) | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-api
+  labels: {{- include "op.labels" (dict "name" "order-api" "root" $) | nindent 4 }}
+spec:
+  replicas: {{ .Values.orderApi.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: order-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels: {{- include "op.labels" (dict "name" "order-api" "root" $) | nindent 8 }}
+      annotations:
+        # Roll the pods whenever the rendered config changes. Without this,
+        # `helm upgrade` with only a value change leaves old pods running.
+        checksum/config: {{ toJson .Values | sha256sum }}
+        # Istio's agent reads these three, scrapes the app over loopback inside
+        # the pod, and re-publishes the result merged with Envoy's own metrics
+        # on port 15020. That merged endpoint is what Prometheus scrapes — see
+        # §9.6 for why it cannot scrape port 8000 directly any more.
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: {{ .Values.orderApi.port | quote }}
+    spec:
+      # Kubernetes injects a Docker-link env var per Service in this namespace:
+      # ORDER_API_PORT, ORDER_WORKER_PORT — each set to "tcp://<clusterIP>:<port>".
+      # Any app reading a variable of that name as its own config gets a URL where
+      # it expected an integer, and env vars outrank every other config source.
+      # Service links are a Docker-links relic nothing here uses.
+      enableServiceLinks: false
+      serviceAccountName: order-api
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecret }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: order-api
+          image: {{ include "op.image" (dict "root" $ "img" .Values.orderApi.image) }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { name: http, containerPort: {{ .Values.orderApi.port }} }
+          env:
+            {{- include "op.commonEnv" . | nindent 12 }}
+            - name: S3_BUCKET
+              value: {{ .Values.aws.s3Bucket | quote }}
+            - name: SERVICE_VERSION
+              value: {{ .Values.orderApi.image.tag | quote }}
+            - name: ORDER_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.orderApi.secretName }}
+                  key: ORDER_SIGNING_KEY
+          startupProbe:
+            # Gives a slow start up to 60s without loosening the liveness probe,
+            # which stays tight so a genuinely wedged pod is killed fast.
+            httpGet: { path: /healthz, port: http }
+            failureThreshold: 20
+            periodSeconds: 3
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 5
+            failureThreshold: 2
+          resources: {{- toYaml .Values.orderApi.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-api
+  labels: {{- include "op.labels" (dict "name" "order-api" "root" $) | nindent 4 }}
+spec:
+  selector:
+    app.kubernetes.io/name: order-api
+  ports:
+    - { name: http, port: 80, targetPort: http }
+{{- if .Values.orderApi.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: order-api
+spec:
+  ingressClassName: {{ .Values.orderApi.ingress.className }}
+  rules:
+    - host: {{ .Values.orderApi.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: order-api
+                port: { name: http }
+{{- end }}
+{{- end }}

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: order-platform
+description: order-api (FastAPI) and order-worker (Go)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

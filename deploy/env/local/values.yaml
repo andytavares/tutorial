@@ -1,0 +1,8 @@
+# This file is the deployment contract. Buildkite rewrites the two image tags
+# below and commits; Argo CD notices and syncs. Nothing else writes here.
+orderApi:
+  image:
+    tag: "3858baa549f6"
+orderWorker:
+  image:
+    tag: "3858baa549f6"
