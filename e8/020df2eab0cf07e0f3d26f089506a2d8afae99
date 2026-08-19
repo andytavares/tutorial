@@ -1,0 +1,22 @@
+services/order-worker/main.go
+  h_16ba00fe96244d 1-338
+services/order-worker/main_test.go
+  h_16ba00fe96244d 1-209
+services/order-worker/Dockerfile
+  h_16ba00fe96244d 1-28
+services/order-worker/go.mod
+  h_16ba00fe96244d 1-38
+services/order-worker/go.sum
+  h_16ba00fe96244d 1-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e8020df2eab0cf07e0f3d26f089506a2d8afae99",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
