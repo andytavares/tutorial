@@ -1,0 +1,22 @@
+deploy/platform/openbao-operator-auth.yaml
+  h_16ba00fe96244d 1-86
+deploy/platform/floci-bootstrap.yaml
+  h_16ba00fe96244d 1-50
+deploy/platform/floci.yaml
+  h_16ba00fe96244d 1-65
+deploy/platform/secret-store.yaml
+  h_16ba00fe96244d 1-30
+deploy/platform/external-secrets.yaml
+  h_16ba00fe96244d 1-48
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "c9ca843b1b423fd84b855b3769ef0ac2226047f7",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
