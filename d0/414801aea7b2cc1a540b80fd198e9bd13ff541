@@ -1,0 +1,26 @@
+deploy/charts/order-platform/templates/order-api.yaml
+  h_16ba00fe96244d 1-114
+deploy/charts/order-platform/templates/podmonitor.yaml
+  h_16ba00fe96244d 1-31
+deploy/charts/order-platform/values.yaml
+  h_16ba00fe96244d 1-54
+deploy/charts/order-platform/Chart.yaml
+  h_16ba00fe96244d 1-6
+deploy/charts/order-platform/templates/_helpers.yaml
+  h_16ba00fe96244d 1-31
+deploy/charts/order-platform/templates/order-worker.yaml
+  h_16ba00fe96244d 1-87
+deploy/env/local/values.yaml
+  h_16ba00fe96244d 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d0414801aea7b2cc1a540b80fd198e9bd13ff541",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
