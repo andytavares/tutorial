@@ -1,0 +1,86 @@
+# The human path into OpenBao.
+#
+# The machine path already exists: ESO authenticates with its ServiceAccount
+# through the kubernetes auth method and gets the read-only `shop-read` policy.
+# Humans have had nothing, so every operator write has been made with the root
+# token. The root policy is meant for initial setup and emergencies only and
+# should be revoked once a real auth method exists
+# (https://openbao.org/docs/concepts/tokens). This Job builds that auth method:
+# `userpass`, a scoped `shop-admin` policy, and an `operator` user bound to it.
+#
+# Bootstrapping an auth method is itself a root operation — there is no way to
+# create the first non-root path without a root token. That token is supplied at
+# run time out of a Secret rather than committed here:
+#
+#   kubectl -n openbao create secret generic openbao-bootstrap \
+#     --from-literal=root-token=root \
+#     --from-literal=operator-password=<choose one> \
+#     --dry-run=client -o yaml | kubectl apply -f -
+#
+# A Job's pod template is immutable once created, so re-running this is
+# `kubectl delete -f` then `kubectl apply -f`. The script itself is idempotent:
+# enabling an already-enabled auth method and rewriting an existing policy or
+# user are all no-ops.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: openbao-operator-auth
+  namespace: openbao
+spec:
+  backoffLimit: 6
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      annotations:
+        # An injected sidecar keeps the pod alive after the job finishes, so it
+        # never completes.
+        sidecar.istio.io/inject: "false"
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: bao
+          image: quay.io/openbao/openbao:2.6.1
+          env:
+            - { name: BAO_ADDR, value: "http://openbao.openbao.svc.cluster.local:8200" }
+            - name: BAO_TOKEN
+              valueFrom:
+                secretKeyRef: { name: openbao-bootstrap, key: root-token }
+            - name: OPERATOR_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: openbao-bootstrap, key: operator-password }
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+
+              echo "waiting for openbao..."
+              until bao status >/dev/null 2>&1; do sleep 2; done
+
+              echo "enabling userpass (idempotent)"
+              bao auth enable userpass 2>/dev/null || true
+
+              # Least privilege for an operator of THIS platform: write the
+              # secrets the platform consumes, and see what is there. Not the
+              # root policy with a different name — no sys/*, no auth/*, no
+              # mount management, no ability to widen its own grant, and no
+              # delete or destroy on secret data.
+              echo "writing shop-admin policy"
+              bao policy write shop-admin - <<'POLICY'
+              path "shop/data/*" {
+                capabilities = ["create", "update", "read"]
+              }
+              path "shop/metadata/*" {
+                capabilities = ["read", "list"]
+              }
+              POLICY
+
+              echo "binding operator user to shop-admin"
+              bao write auth/userpass/users/operator \
+                password="$OPERATOR_PASSWORD" \
+                token_policies=shop-admin \
+                token_ttl=1h \
+                token_max_ttl=8h
+
+              echo "--- result ---"
+              bao auth list
+              bao policy read shop-admin
