@@ -1,0 +1,28 @@
+services/order-api/order_api/settings.py
+  h_16ba00fe96244d 1-41
+services/order-api/order_api/main.py
+  h_16ba00fe96244d 1-144
+infra/kind-cluster.yaml
+  h_16ba00fe96244d 1-30
+services/order-api/Dockerfile
+  h_16ba00fe96244d 1-32
+services/order-api/pyproject.toml
+  h_16ba00fe96244d 1-41
+services/order-api/tests/test_api.py
+  h_16ba00fe96244d 1-41
+services/order-api/.python-version
+  h_16ba00fe96244d 1
+services/order-api/uv.lock
+  h_16ba00fe96244d 1-874
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3a6e39d3561f0a327264aeb272c2327d1fd0e20e",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
