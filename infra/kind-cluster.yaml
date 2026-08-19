@@ -1,0 +1,30 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: devops
+
+# Tell containerd on every node to read per-registry configuration from a
+# directory. We drop hosts.toml files into it in §4.3. This is the supported
+# mechanism (the older `mirrors` config in containerd's TOML is deprecated).
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry]
+      config_path = "/etc/containerd/certs.d"
+
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      # Label the node so the ingress controller can target it deterministically.
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      - containerPort: 80        # ingress HTTP
+        hostPort: 80
+        protocol: TCP
+      - containerPort: 443       # ingress HTTPS
+        hostPort: 443
+        protocol: TCP
+  - role: worker
+  - role: worker
