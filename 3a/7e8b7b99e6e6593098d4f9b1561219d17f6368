@@ -1,0 +1,20 @@
+deploy/platform/buildkite-secrets.yaml
+  h_16ba00fe96244d 1-69
+infra/buildkite-values.yaml
+  h_16ba00fe96244d 1-9
+.buildkite/pipeline.sh
+  h_16ba00fe96244d 1-271
+.buildkite/upload.sh
+  h_16ba00fe96244d 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "3a7e8b7b99e6e6593098d4f9b1561219d17f6368",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
