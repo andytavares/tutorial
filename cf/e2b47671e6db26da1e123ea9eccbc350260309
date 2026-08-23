@@ -1,0 +1,14 @@
+deploy/env/local/values.yaml
+  h_16ba00fe96244d 5,8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "cfe2b47671e6db26da1e123ea9eccbc350260309",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
