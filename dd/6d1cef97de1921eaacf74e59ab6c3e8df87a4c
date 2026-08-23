@@ -1,0 +1,21 @@
+deploy/charts/order-platform/values.yaml
+  h_16ba00fe96244d 55-58
+  h_16ba00fe96244d 54
+infra/monitoring-values.yaml
+  h_16ba00fe96244d 1-41
+deploy/platform/alerts.yaml
+  h_16ba00fe96244d 1-40
+deploy/platform/grafana-dashboard.yaml
+  h_16ba00fe96244d 1-64
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "dd6d1cef97de1921eaacf74e59ab6c3e8df87a4c",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
