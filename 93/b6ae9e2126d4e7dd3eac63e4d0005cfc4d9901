@@ -1,0 +1,22 @@
+deploy/platform/kiali-ingress.yaml
+  h_16ba00fe96244d 1-17
+deploy/argocd/apps/order-platform.yaml
+  h_16ba00fe96244d 1-29
+deploy/argocd/root.yaml
+  h_16ba00fe96244d 1-23
+deploy/argocd/apps/platform.yaml
+  h_16ba00fe96244d 1-36
+deploy/platform/argocd-ingress.yaml
+  h_16ba00fe96244d 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "93b6ae9e2126d4e7dd3eac63e4d0005cfc4d9901",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
