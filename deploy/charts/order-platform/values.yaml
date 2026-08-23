@@ -47,12 +47,8 @@ podMonitor:
   # monitoring.coreos.com CRDs. Argo CD does not skip a resource whose CRD is
   # missing — it fails the whole sync, so leaving this true strands every
   # workload in `shop` as Missing. Flip to true in §13.3 and commit.
-  enabled: false
+  enabled: true
   interval: 15s
 
 scaffolded:
   tag: "dev"     # CI overwrites this in the env overlay, same as the other two
-
-serviceMonitor:
-  enabled: true
-  interval: 15s
