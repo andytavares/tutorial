@@ -1,0 +1,9 @@
+agentStackSecret: buildkite-agent-token
+
+config:
+  tags:
+    - queue=kubernetes
+  # Applies to every job's checkout container, so we don't repeat it per-step.
+  default-checkout-params:
+    gitCredentialsSecret:
+      secretName: git-https-credentials
