@@ -2,7 +2,7 @@
 # below and commits; Argo CD notices and syncs. Nothing else writes here.
 orderApi:
   image:
-    tag: "3858baa549f6"
+    tag: "dd6d1cef97de"
 orderWorker:
   image:
-    tag: "3858baa549f6"
+    tag: "dd6d1cef97de"
