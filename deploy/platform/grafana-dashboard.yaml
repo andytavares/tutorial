@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-platform-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"     # the sidecar's selector from §13.2
+data:
+  order-platform.json: |
+    {
+      "title": "Order Platform",
+      "uid": "order-platform",
+      "timezone": "browser",
+      "refresh": "10s",
+      "time": { "from": "now-30m", "to": "now" },
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "Orders accepted / sec (API)",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum by (result) (rate(orders_received_total[1m]))",
+              "legendFormat": "{{result}}"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Orders persisted / sec (Worker)",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum by (result) (rate(orders_processed_total[1m]))",
+              "legendFormat": "{{result}}"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Ingest latency p50 / p95 / p99",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "targets": [
+            { "expr": "histogram_quantile(0.50, sum by (le) (rate(order_ingest_duration_seconds_bucket[5m])))", "legendFormat": "p50" },
+            { "expr": "histogram_quantile(0.95, sum by (le) (rate(order_ingest_duration_seconds_bucket[5m])))", "legendFormat": "p95" },
+            { "expr": "histogram_quantile(0.99, sum by (le) (rate(order_ingest_duration_seconds_bucket[5m])))", "legendFormat": "p99" }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Pipeline lag (event age, seconds)",
+          "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
+          "targets": [ { "expr": "max(order_event_age_seconds)" } ]
+        },
+        {
+          "type": "stat",
+          "title": "Unprocessed (accepted - persisted)",
+          "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
+          "targets": [
+            { "expr": "sum(orders_received_total{result=\"ok\"}) - sum(orders_processed_total{result=\"ok\"})" }
+          ]
+        }
+      ]
+    }

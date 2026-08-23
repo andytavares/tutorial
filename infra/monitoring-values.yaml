@@ -1,0 +1,41 @@
+grafana:
+  adminPassword: admin
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts: ["grafana.localtest.me"]
+  defaultDashboardsTimezone: browser
+  sidecar:
+    dashboards:
+      enabled: true
+      # Any ConfigMap in any namespace with this label becomes a dashboard.
+      # That is how app teams ship dashboards with their app, not via a ticket.
+      label: grafana_dashboard
+      searchNamespace: ALL
+
+prometheus:
+  prometheusSpec:
+    retention: 24h
+    # Empty selectors = "discover ServiceMonitors regardless of Helm labels".
+    # The chart's default restricts discovery to objects carrying its own release
+    # label, which silently drops third-party monitors and causes hours of
+    # "why is my target missing" debugging.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits:   { memory: 1500Mi }
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests: { cpu: 50m, memory: 128Mi }
+      limits:   { memory: 256Mi }
+
+# Two components that do not work on kind: kubelet's control-plane endpoints
+# are not individually addressable the way a managed cluster exposes them.
+kubeControllerManager: { enabled: false }
+kubeScheduler: { enabled: false }
+kubeEtcd: { enabled: false }
+kubeProxy: { enabled: false }

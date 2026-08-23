@@ -52,3 +52,7 @@ podMonitor:
 
 scaffolded:
   tag: "dev"     # CI overwrites this in the env overlay, same as the other two
+
+serviceMonitor:
+  enabled: true
+  interval: 15s

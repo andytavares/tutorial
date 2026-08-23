@@ -1,0 +1,40 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: order-platform
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: order-platform
+      interval: 30s
+      rules:
+        - alert: OrderPipelineStalled
+          # Orders coming in, none going out, for 5 minutes.
+          expr: |
+            sum(rate(orders_received_total{result="ok"}[5m])) > 0
+            and
+            sum(rate(orders_processed_total{result="ok"}[5m])) == 0
+          for: 5m
+          labels: { severity: critical }
+          annotations:
+            summary: "Orders are being accepted but nothing is being persisted"
+            description: "order-worker is not consuming. Check consumer group lag and worker logs."
+
+        - alert: OrderIngestErrorRate
+          expr: |
+            sum(rate(orders_received_total{result="error"}[5m]))
+            /
+            sum(rate(orders_received_total[5m])) > 0.05
+          for: 10m
+          labels: { severity: warning }
+          annotations:
+            summary: "order-api error rate above 5%"
+
+        - alert: OrderEventAgeHigh
+          expr: max(order_event_age_seconds) > 120
+          for: 5m
+          labels: { severity: warning }
+          annotations:
+            summary: "Order events are more than 2 minutes old"
