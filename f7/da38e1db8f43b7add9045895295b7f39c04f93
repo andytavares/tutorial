@@ -1,0 +1,15 @@
+deploy/charts/order-platform/values.yaml
+  h_16ba00fe96244d 50
+  h_16ba00fe96244d 54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "f7da38e1db8f43b7add9045895295b7f39c04f93",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
