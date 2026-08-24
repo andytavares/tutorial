@@ -27,12 +27,8 @@ logging.basicConfig(
 log = logging.getLogger("order-api")
 
 # ---------- metrics ----------
-ORDERS_RECEIVED = Counter(
-    "orders_received_total", "Orders accepted by the API", ["result"]
-)
-ORDER_LATENCY = Histogram(
-    "order_ingest_duration_seconds", "Time to persist and publish one order"
-)
+ORDERS_RECEIVED = Counter("orders_received_total", "Orders accepted by the API", ["result"])
+ORDER_LATENCY = Histogram("order_ingest_duration_seconds", "Time to persist and publish one order")
 
 # ---------- state ----------
 state: dict = {"producer": None, "s3": None, "ready": False}
@@ -50,8 +46,8 @@ async def lifespan(_: FastAPI):
     )
     producer = AIOKafkaProducer(
         bootstrap_servers=settings.kafka_brokers,
-        acks="all",              # do not consider a write done until all ISRs have it
-        enable_idempotence=True, # no duplicates on internal retry
+        acks="all",  # do not consider a write done until all ISRs have it
+        enable_idempotence=True,  # no duplicates on internal retry
         linger_ms=5,
     )
     await producer.start()
@@ -106,9 +102,7 @@ async def create_order(order: OrderIn) -> dict:
     body = json.dumps(payload, separators=(",", ":")).encode()
 
     # Sign the payload with a key that only ever exists in OpenBao.
-    signature = hmac.new(
-        settings.signing_key.encode(), body, hashlib.sha256
-    ).hexdigest()
+    signature = hmac.new(settings.signing_key.encode(), body, hashlib.sha256).hexdigest()
 
     key = f"orders/{created_at[:10]}/{order_id}.json"
     try:
