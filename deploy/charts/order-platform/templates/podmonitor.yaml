@@ -14,18 +14,40 @@ spec:
     matchLabels:
       app.kubernetes.io/part-of: order-platform
   podMetricsEndpoints:
-    # istio-proxy's MERGED endpoint on 15020: our application metrics (scraped
-    # over loopback inside the pod, per the prometheus.io/* annotations above)
-    # plus Envoy's and Istio's. One scrape, all of it, and it survives STRICT.
+    # istio-proxy's MERGED endpoint on 15020: our application metrics (which the
+    # sidecar scrapes over loopback, from the port and path recorded in
+    # ISTIO_PROMETHEUS_ANNOTATIONS at injection time) plus Envoy's and Istio's.
+    # One scrape, all of it, and it survives STRICT mTLS.
     #
-    # It must be 15020 and it must be addressed by number. Istio: "forwards
-    # requests to the sidecar telemetry port 15020 for merged metrics or 15090
-    # for Envoy-only metrics". 15090 is the one carrying the port NAME
-    # `http-envoy-prom`; 15020 is unnamed in the pod spec, so `port:` cannot
-    # reach it and `portNumber:` is required. Selecting http-envoy-prom gets
-    # you istio_requests_total (Kiali works) but never the application's own
-    # metrics, which is a silent half-failure.
-    - portNumber: 15020
-      path: /stats/prometheus
+    # The address CANNOT be written as `portNumber: 15020`. A PodMonitor's
+    # `port`/`portNumber` are filters on the container ports a pod DECLARES, and
+    # 15020 is not declared by anything — istio-proxy declares 15090
+    # (`http-envoy-prom`, Envoy-only) and 15021 (`status`). Ask for 15020 by
+    # number and the operator emits a keep rule that matches no container, so
+    # every target is dropped during relabeling and the job goes silently empty:
+    # `/targets` shows nothing at all rather than a failure.
+    #
+    # Build the address from the annotations instead. With metrics merging on
+    # (the Istio default) the injector rewrites the pod's prometheus.io/* to
+    # point at the merged endpoint, so `prometheus.io/port` is already 15020.
+    # https://istio.io/latest/docs/ops/integrations/prometheus/
+    - path: /stats/prometheus
       interval: {{ .Values.podMonitor.interval }}
+      relabelings:
+        # One target per pod, not one per container: without this, every
+        # container in the pod produces a target and all of them get rewritten
+        # to the same address, tripling the scrape.
+        - action: keep
+          sourceLabels: [__meta_kubernetes_pod_container_name]
+          regex: istio-proxy
+        - action: keep
+          sourceLabels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          regex: "true"
+        - action: replace
+          sourceLabels:
+            - __meta_kubernetes_pod_annotation_prometheus_io_port
+            - __meta_kubernetes_pod_ip
+          regex: (\d+);((([0-9]+?)(\.|$)){4})
+          replacement: $2:$1
+          targetLabel: __address__
 {{- end }}

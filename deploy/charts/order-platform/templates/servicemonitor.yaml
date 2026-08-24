@@ -1,0 +1,38 @@
+{{- if .Values.serviceMonitor.enabled }}
+# The pre-mesh scrape path. Prometheus talks straight to each Service's metrics
+# port over plaintext, which is the obvious thing and works fine — right up
+# until STRICT mTLS (§9.4) starts refusing it, at which point every one of these
+# targets goes down and *nothing logs an error*.
+#
+# §9.6 is that failure. The fix is podmonitor.yaml, which scrapes the sidecar's
+# merged endpoint instead. Exactly one of these two should be enabled:
+#   before Istio -> serviceMonitor.enabled: true
+#   after Istio  -> podMonitor.enabled: true
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: order-platform
+  labels:
+    # kube-prometheus-stack's Prometheus selects monitors by this label in the
+    # default configuration we install in §13.
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames: ["shop"]
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: order-platform
+  endpoints:
+    # One entry per port name in use, because a ServiceMonitor selects by port
+    # *name* and silently skips a name that does not exist on a given Service.
+    # order-api serves the app and its metrics on `http`; order-worker and
+    # pricing expose `http-metrics` separately. The `http-` prefix is not
+    # decoration — Istio reads the protocol off the port name, and a name it
+    # does not recognise is treated as plain TCP.
+    - port: http
+      path: /metrics
+      interval: {{ .Values.serviceMonitor.interval }}
+    - port: http-metrics
+      path: /metrics
+      interval: {{ .Values.serviceMonitor.interval }}
+{{- end }}

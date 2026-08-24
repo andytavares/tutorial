@@ -1,0 +1,49 @@
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: edge
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*.localtest.me"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: frontend
+  namespace: shop
+spec:
+  hosts:
+    - "app.localtest.me"
+  gateways:
+    - istio-system/edge
+  http:
+    - route:
+        - destination:
+            host: frontend.shop.svc.cluster.local
+            port:
+              number: 80
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: order-api
+  namespace: shop
+spec:
+  hosts:
+    - "shop.localtest.me"
+  gateways:
+    - istio-system/edge
+  http:
+    - route:
+        - destination:
+            host: order-api.shop.svc.cluster.local
+            port:
+              number: 80

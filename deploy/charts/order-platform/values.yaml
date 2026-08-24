@@ -42,11 +42,21 @@ orderWorker:
     requests: { cpu: 50m, memory: 64Mi }
     limits:   { memory: 128Mi }
 
+# Exactly one of these two should be on. serviceMonitor is the pre-mesh scrape
+# path (§13.3); podMonitor replaces it once STRICT mTLS refuses plaintext
+# scrapes (§9.6). Both start false because the monitoring.coreos.com CRDs do
+# not exist until §13.2 installs kube-prometheus-stack, and Argo CD fails the
+# whole Application sync on a resource whose CRD is missing.
+serviceMonitor:
+  enabled: false
+  interval: 15s
+
 podMonitor:
   # false until §13.2 installs kube-prometheus-stack and with it the
   # monitoring.coreos.com CRDs. Argo CD does not skip a resource whose CRD is
   # missing — it fails the whole sync, so leaving this true strands every
-  # workload in `shop` as Missing. Flip to true in §13.3 and commit.
+  # workload in `shop` as Missing. §13.3 turns on serviceMonitor above; this
+  # one replaces it in §9.6, once STRICT mTLS refuses the plaintext scrape.
   enabled: true
   interval: 15s
 
