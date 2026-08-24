@@ -1,0 +1,144 @@
+portal/.yarnrc.yml
+  h_16ba00fe96244d 1-11
+deploy/platform/istio/pricing-fault-injection.yaml.disabled
+  h_16ba00fe96244d 1-71
+portal/app-config.production.yaml
+  h_16ba00fe96244d 1-52
+portal/catalog-info.yaml
+  h_16ba00fe96244d 1-120
+pants.toml
+  h_16ba00fe96244d 1-121
+portal/templates/new-service/template.yaml
+  h_16ba00fe96244d 1-63
+portal/packages/backend/src/index.ts
+  h_16ba00fe96244d 1-72
+.pants.d/workdir/pants.log
+  s_513c4510dbcf04::t_6afd4b99e96317 1-35
+.pants.d/workdir/run-tracker/pants_run_2026_08_23_23_10_24_588_850588f5a7244829aa62b1aa6e260d53/logs
+  s_513c4510dbcf04::t_a70768368f005c 1-2
+3rdparty/python/BUILD
+  s_513c4510dbcf04::t_6229db29fbbde2 1-4
+3rdparty/python/requirements.txt
+  s_513c4510dbcf04::t_bfeabba2c284c3 1-39
+locks/python-default.lock
+  s_513c4510dbcf04::t_43c67148a49b38 1-2543
+.pants.d/pids/03e5eef60f70/pantsd/fingerprint
+  h_16ba00fe96244d 1
+.pants.d/pids/03e5eef60f70/pantsd/pid
+  h_16ba00fe96244d 1
+.pants.d/pids/03e5eef60f70/pantsd/process_name
+  h_16ba00fe96244d 1
+.pants.d/pids/03e5eef60f70/pantsd/socket
+  h_16ba00fe96244d 1
+.pants.d/workdir/run-tracker/pants_run_2026_08_23_23_04_30_362_73593c88b09a4e528cdaa8f17550936f/logs
+  h_16ba00fe96244d 1-7
+portal/.dockerignore
+  h_16ba00fe96244d 1-8
+portal/.eslintignore
+  h_16ba00fe96244d 1
+portal/.eslintrc.js
+  h_16ba00fe96244d 1-3
+portal/.gitignore
+  h_16ba00fe96244d 1-56
+portal/.prettierignore
+  h_16ba00fe96244d 1-4
+portal/.yarn/releases/yarn-4.13.0.cjs
+  h_16ba00fe96244d 1-940
+portal/README.md
+  h_16ba00fe96244d 1-10
+portal/app-config.yaml
+  h_16ba00fe96244d 1-230
+portal/backstage.json
+  h_16ba00fe96244d 1-3
+portal/examples/entities.yaml
+  h_16ba00fe96244d 1-41
+portal/examples/org.yaml
+  h_16ba00fe96244d 1-17
+portal/examples/template/content/catalog-info.yaml
+  h_16ba00fe96244d 1-8
+portal/examples/template/content/index.js
+  h_16ba00fe96244d 1
+portal/examples/template/content/package.json
+  h_16ba00fe96244d 1-5
+portal/examples/template/template.yaml
+  h_16ba00fe96244d 1-87
+portal/package.json
+  h_16ba00fe96244d 1-66
+portal/packages/README.md
+  h_16ba00fe96244d 1-9
+portal/packages/app/.eslintignore
+  h_16ba00fe96244d 1
+portal/packages/app/.eslintrc.js
+  h_16ba00fe96244d 1
+portal/packages/app/e2e-tests/app.test.ts
+  h_16ba00fe96244d 1-33
+portal/packages/app/package.json
+  h_16ba00fe96244d 1-75
+portal/packages/app/public/index.html
+  h_16ba00fe96244d 1-60
+portal/packages/app/public/manifest.json
+  h_16ba00fe96244d 1-15
+portal/packages/app/public/robots.txt
+  h_16ba00fe96244d 1-2
+portal/packages/app/public/safari-pinned-tab.svg
+  h_16ba00fe96244d 1
+portal/packages/app/src/App.test.tsx
+  h_16ba00fe96244d 1-28
+portal/packages/app/src/App.tsx
+  h_16ba00fe96244d 1-8
+portal/packages/app/src/index.tsx
+  h_16ba00fe96244d 1-6
+portal/packages/app/src/modules/home/homeModule.tsx
+  h_16ba00fe96244d 1-52
+portal/packages/app/src/modules/home/index.ts
+  h_16ba00fe96244d 1
+portal/packages/app/src/modules/nav/LogoFull.tsx
+  h_16ba00fe96244d 1-28
+portal/packages/app/src/modules/nav/LogoIcon.tsx
+  h_16ba00fe96244d 1-28
+portal/packages/app/src/modules/nav/Sidebar.tsx
+  h_16ba00fe96244d 1-60
+portal/packages/app/src/modules/nav/SidebarLogo.tsx
+  h_16ba00fe96244d 1-36
+portal/packages/app/src/modules/nav/index.ts
+  h_16ba00fe96244d 1-7
+portal/packages/app/src/setupTests.ts
+  h_16ba00fe96244d 1
+portal/packages/backend/.eslintrc.js
+  h_16ba00fe96244d 1
+portal/packages/backend/Dockerfile
+  h_16ba00fe96244d 1-60
+portal/packages/backend/README.md
+  h_16ba00fe96244d 1-59
+portal/packages/backend/package.json
+  h_16ba00fe96244d 1-59
+portal/playwright.config.ts
+  h_16ba00fe96244d 1-66
+portal/plugins/README.md
+  h_16ba00fe96244d 1-9
+portal/tsconfig.json
+  h_16ba00fe96244d 1-17
+portal/yarn.lock
+  h_16ba00fe96244d 1-31131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "b8e3126e503aef65da437c264b50ea78881eb2e9",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_513c4510dbcf04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e8a40aa2-818d-44cb-b795-8f7ebab27e87",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
