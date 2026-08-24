@@ -3,13 +3,32 @@ python_sources(
     sources=["order_api/**/*.py"],
 )
 
+python_sources(
+    name="tools",
+    sources=["openapi_dump.py"],
+    dependencies=[":lib"],
+)
+
+pex_binary(
+    name="dump-openapi",
+    entry_point="openapi_dump.py",
+    dependencies=[":tools"],
+)
+
+resource(
+    name="openapi-spec",
+    source="openapi.json",
+)
+
 python_tests(
     name="tests",
     # `!tests/__init__.py`: it's a namespace marker, not a test — including it
     # makes Pants generate a `python_test` target for it that pytest then fails
     # with "no tests collected".
     sources=["tests/**/*.py", "!tests/__init__.py"],
-    dependencies=[":lib"],
+    # `:openapi-spec` is a resource, not code, so nothing infers it — the drift
+    # test reads it off disk by path.
+    dependencies=[":lib", ":openapi-spec"],
 )
 
 pex_binary(
@@ -20,8 +39,12 @@ pex_binary(
     tags=["deployable"],
     entry_point="order_api.main:main",
     dependencies=[":lib"],
-    # Land in dist/ under a predictable name so dist/ can be used directly as
-    # the Buildah build context and the Dockerfile can COPY by name. Default
-    # would be dist/services.order-api/bin.pex.
+    # The cluster runs linux/aarch64, not this macOS laptop. Without this,
+    # `pants package` resolves macOS wheels for native deps (grpcio,
+    # pydantic-core, uvloop, watchfiles) that import-fail in the container.
+    complete_platforms=["3rdparty/python:linux-platform"],
+    # Land in dist/ under a predictable name so dist/ can be used
+    # directly as the Buildah build context and the Dockerfile can COPY by
+    # name. Default would be dist/services.<name>/bin.pex.
     output_path="order-api.pex",
 )
