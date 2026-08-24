@@ -1,0 +1,114 @@
+portal/package.json
+  h_16ba00fe96244d 1-66
+portal/README.md
+  h_16ba00fe96244d 1-10
+portal/.prettierignore
+  h_16ba00fe96244d 1-4
+portal/packages/app/public/safari-pinned-tab.svg
+  h_16ba00fe96244d 1
+portal/packages/app/src/index.tsx
+  h_16ba00fe96244d 1-6
+portal/.gitignore
+  h_16ba00fe96244d 1-56
+portal/examples/org.yaml
+  h_16ba00fe96244d 1-17
+portal/packages/app/src/modules/nav/Sidebar.tsx
+  h_16ba00fe96244d 1-60
+portal/examples/template/content/package.json
+  h_16ba00fe96244d 1-5
+portal/packages/app/src/modules/nav/LogoIcon.tsx
+  h_16ba00fe96244d 1-28
+portal/packages/app/.eslintrc.js
+  h_16ba00fe96244d 1
+portal/packages/app/src/setupTests.ts
+  h_16ba00fe96244d 1
+portal/packages/app/public/index.html
+  h_16ba00fe96244d 1-60
+portal/backstage.json
+  h_16ba00fe96244d 1-3
+portal/.eslintrc.js
+  h_16ba00fe96244d 1-3
+portal/playwright.config.ts
+  h_16ba00fe96244d 1-66
+portal/tsconfig.json
+  h_16ba00fe96244d 1-17
+portal/packages/app/src/App.tsx
+  h_16ba00fe96244d 1-8
+portal/packages/app/public/manifest.json
+  h_16ba00fe96244d 1-15
+portal/packages/app/src/modules/nav/SidebarLogo.tsx
+  h_16ba00fe96244d 1-36
+portal/.eslintignore
+  h_16ba00fe96244d 1
+portal/app-config.production.yaml
+  h_16ba00fe96244d 1-52
+portal/.yarn/releases/yarn-4.13.0.cjs
+  h_16ba00fe96244d 1-940
+portal/examples/entities.yaml
+  h_16ba00fe96244d 1-41
+portal/catalog-info.yaml
+  h_16ba00fe96244d 1-120
+deploy/platform/istio/pricing-fault-injection.yaml.disabled
+  h_16ba00fe96244d 1-71
+portal/packages/app/public/robots.txt
+  h_16ba00fe96244d 1-2
+portal/packages/app/src/modules/nav/index.ts
+  h_16ba00fe96244d 1-7
+portal/templates/new-service/template.yaml
+  h_16ba00fe96244d 1-63
+portal/examples/template/content/catalog-info.yaml
+  h_16ba00fe96244d 1-8
+portal/packages/backend/src/index.ts
+  h_16ba00fe96244d 1-72
+portal/packages/backend/.eslintrc.js
+  h_16ba00fe96244d 1
+portal/packages/app/src/modules/nav/LogoFull.tsx
+  h_16ba00fe96244d 1-28
+portal/packages/app/src/modules/home/index.ts
+  h_16ba00fe96244d 1
+portal/packages/app/src/App.test.tsx
+  h_16ba00fe96244d 1-28
+portal/plugins/README.md
+  h_16ba00fe96244d 1-9
+portal/packages/backend/package.json
+  h_16ba00fe96244d 1-59
+portal/app-config.yaml
+  h_16ba00fe96244d 1-230
+portal/examples/template/content/index.js
+  h_16ba00fe96244d 1
+portal/.dockerignore
+  h_16ba00fe96244d 1-8
+portal/packages/backend/Dockerfile
+  h_16ba00fe96244d 1-60
+portal/packages/app/.eslintignore
+  h_16ba00fe96244d 1
+portal/examples/template/template.yaml
+  h_16ba00fe96244d 1-87
+portal/packages/app/src/modules/home/homeModule.tsx
+  h_16ba00fe96244d 1-52
+portal/.yarnrc.yml
+  h_16ba00fe96244d 1-11
+portal/packages/app/package.json
+  h_16ba00fe96244d 1-75
+pants.toml
+  h_16ba00fe96244d 1-121
+portal/packages/app/e2e-tests/app.test.ts
+  h_16ba00fe96244d 1-33
+portal/packages/backend/README.md
+  h_16ba00fe96244d 1-59
+portal/packages/README.md
+  h_16ba00fe96244d 1-9
+portal/yarn.lock
+  h_16ba00fe96244d 1-31131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "d5d6f99b4b8a0cb991b528004d9b140b5fc24586",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
