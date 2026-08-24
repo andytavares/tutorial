@@ -1,0 +1,30 @@
+3rdparty/python/BUILD
+  s_513c4510dbcf04::t_6229db29fbbde2 1-4
+locks/python-default.lock
+  s_513c4510dbcf04::t_43c67148a49b38 1-2543
+3rdparty/python/requirements.txt
+  s_513c4510dbcf04::t_bfeabba2c284c3 1-39
+.gitignore
+  s_513c4510dbcf04::t_6a273c5f74d277 6-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "b24377a8b4030e37004ef07c850943f0fc6e3586",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_513c4510dbcf04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e8a40aa2-818d-44cb-b795-8f7ebab27e87",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
