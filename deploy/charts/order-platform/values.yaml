@@ -25,10 +25,6 @@ orderApi:
   resources:
     requests: { cpu: 50m, memory: 128Mi }
     limits:   { memory: 256Mi }
-  ingress:
-    enabled: true
-    className: nginx
-    host: shop.localtest.me
 
 orderWorker:
   enabled: true

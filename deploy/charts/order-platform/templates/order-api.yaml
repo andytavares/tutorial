@@ -92,23 +92,4 @@ spec:
     app.kubernetes.io/name: order-api
   ports:
     - { name: http, port: 80, targetPort: http }
-{{- if .Values.orderApi.ingress.enabled }}
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: order-api
-spec:
-  ingressClassName: {{ .Values.orderApi.ingress.className }}
-  rules:
-    - host: {{ .Values.orderApi.ingress.host }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: order-api
-                port: { name: http }
-{{- end }}
 {{- end }}
