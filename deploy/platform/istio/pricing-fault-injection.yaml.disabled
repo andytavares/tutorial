@@ -1,0 +1,71 @@
+# FAILURE DRILL -- NOT applied by Argo CD (the .disabled suffix excludes it
+# from the app's manifest glob). This is an operator tool, applied by hand.
+#
+# What it does: injects a 3s fixed delay into 50% of gRPC calls to pricing.
+# 3s is deliberately LONGER than order-api's 2s client-side gRPC deadline
+# (services/order-api/order_api/main.py PricingClient timeout) and longer
+# than pricing-traffic.yaml's own 1800ms route timeout, so neither of those
+# will save the call -- the point is to force a real, visible failure, not a
+# near-miss.
+#
+# How to apply:
+#   kubectl apply -f deploy/platform/istio/pricing-fault-injection.yaml.disabled
+#
+# What to watch while it's applied:
+#   - order-api: `pricing_calls_total{result="timeout"}` climbing (Prometheus
+#     metric emitted from _price_order's grpc.RpcError handler), and its logs
+#     showing `pricing call failed ... code=DEADLINE_EXCEEDED`.
+#   - order-api: HTTP 502s on POST /orders for the affected fraction of
+#     requests -- there is no fallback path, a failed pricing call IS a
+#     failed order (see the docstring on _price_order).
+#   - frontend: its error counter for order submission climbing in lockstep
+#     with the 50% fault percentage below.
+#   - Kiali / the mesh: pricing's traffic graph should show an elevated error
+#     rate on the subset(s) this fault applies to, and (after enough
+#     consecutive 5xx/gateway errors -- see pricing-traffic.yaml's
+#     outlierDetection: consecutive5xxErrors: 3) pods may start showing as
+#     ejected from the pool. Note that a client-side injected delay is
+#     observed by order-api's Envoy sidecar as a gateway timeout against the
+#     pricing cluster, so it counts toward that ejection threshold too.
+#
+# How to revert:
+#   kubectl delete -f deploy/platform/istio/pricing-fault-injection.yaml.disabled
+#   (this VirtualService is additive/separate from pricing-traffic.yaml's
+#   VirtualService for the same host -- Istio does not allow two
+#   VirtualServices to independently define routes for the same host, so
+#   applying this file means deleting or not simultaneously running
+#   pricing-traffic.yaml's VirtualService for `pricing`. In practice: delete
+#   this fault manifest to go back to the canary-only routing in
+#   pricing-traffic.yaml.)
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: pricing
+  namespace: shop
+spec:
+  hosts:
+    - pricing.shop.svc.cluster.local
+  http:
+    - fault:
+        delay:
+          percentage:
+            value: 50
+          fixedDelay: 3s
+      route:
+        - destination:
+            host: pricing.shop.svc.cluster.local
+            subset: v1
+            port:
+              number: 50051
+          weight: 90
+        - destination:
+            host: pricing.shop.svc.cluster.local
+            subset: v2
+            port:
+              number: 50051
+          weight: 10
+      timeout: 1800ms
+      retries:
+        attempts: 2
+        perTryTimeout: 500ms
+        retryOn: cancelled,unavailable,connect-failure,refused-stream

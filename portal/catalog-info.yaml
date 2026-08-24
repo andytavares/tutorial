@@ -1,0 +1,120 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: order-platform
+  description: Order intake and persistence
+spec:
+  owner: group:default/platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: order-api
+  description: FastAPI order intake; prices every order over gRPC before accepting it
+  annotations:
+    github.com/project-slug: andytavares/modern-devops
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/platform
+  system: order-platform
+  providesApis: [orders]
+  consumesApis: [pricing]
+  dependsOn: [component:default/pricing]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: order-worker
+  description: Go consumer, writes to S3 and DynamoDB
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/platform
+  system: order-platform
+  consumesApis: [orders]
+  dependsOn: [resource:default/orders-raw]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: pricing
+  description: >-
+    gRPC pricing service. Runs as two versions behind one Kubernetes Service so
+    Istio can shift traffic between them; the version that answered is returned
+    to the caller as `served_by` (§18).
+  annotations:
+    github.com/project-slug: andytavares/modern-devops
+spec:
+  type: service
+  lifecycle: production
+  owner: group:default/platform
+  system: order-platform
+  providesApis: [pricing]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: frontend
+  description: >-
+    Canary Watch — the Vite dashboard that tallies `served_by` across repeated
+    orders, so a traffic shift is something you watch rather than something you
+    read out of a metric (§19).
+  annotations:
+    github.com/project-slug: andytavares/modern-devops
+spec:
+  type: website
+  lifecycle: production
+  owner: group:default/platform
+  system: order-platform
+  consumesApis: [orders]
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: orders
+  description: The REST surface order-api exposes at the edge
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/platform
+  system: order-platform
+  # Generated, never hand-written — `pants run services/order-api:dump-openapi`.
+  # A drift test fails the build if this file stops matching the routes, because
+  # a stale spec the portal keeps rendering is worse than no spec at all.
+  definition:
+    $text: ./services/order-api/openapi.json
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: pricing
+  description: The gRPC contract between order-api and pricing
+spec:
+  type: grpc
+  lifecycle: production
+  owner: group:default/platform
+  system: order-platform
+  # The .proto is the contract itself, and Pants compiles this exact file into
+  # both the Python server and the Go stubs (§17.4). There is no second copy to
+  # drift from.
+  definition:
+    $text: ./protos/shop/v1/pricing.proto
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: orders-raw
+  description: S3 bucket holding raw order payloads
+spec:
+  type: s3-bucket
+  owner: group:default/platform
+  system: order-platform
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: platform
+spec:
+  type: team
+  children: []

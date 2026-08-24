@@ -1,0 +1,52 @@
+app:
+  # https, not http. The UI calls crypto.randomUUID, which the browser only
+  # exposes in a secure context — over plain http Backstage renders a blank
+  # page. And once the page is served over https, a backend baseUrl on http
+  # gets every API call blocked as mixed content, so all three URLs here have
+  # to agree.
+  baseUrl: https://backstage.localtest.me
+
+backend:
+  baseUrl: https://backstage.localtest.me
+  listen:
+    # Object form. The string shorthand (`listen: ':7007'`) is rejected:
+    #   Invalid type in config for key 'backend.listen', got string, wanted object
+    # host must be 0.0.0.0, not the 127.0.0.1 default, or the container binds to
+    # loopback and the kubelet's probes never reach it.
+    host: 0.0.0.0
+    port: 7007
+  cors:
+    origin: https://backstage.localtest.me
+  database:
+    client: pg
+    connection:
+      host: ${POSTGRES_HOST}
+      port: ${POSTGRES_PORT}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+
+integrations:
+  github:
+    - host: github.com
+      # Fine-grained PAT, this repository only, Contents + Pull requests: RW.
+      token: ${GITHUB_TOKEN}
+
+auth:
+  providers:
+    guest:
+      # Backstage refuses guest sign-in outside development unless you say this
+      # out loud. Read the end of §14.8 before you copy this line anywhere real.
+      dangerouslyAllowOutsideDevelopment: true
+
+catalog:
+  rules:
+    - allow: [Component, System, API, Resource, Location, Template, Group, User]
+  locations:
+    - type: url
+      target: https://github.com/andytavares/modern-devops/blob/main/catalog-info.yaml
+    - type: url
+      target: https://github.com/andytavares/modern-devops/blob/main/deploy/backstage/templates/new-service/template.yaml
+      rules: [{ allow: [Template] }]
+    - type: url
+      target: https://github.com/andytavares/modern-devops/blob/main/deploy/backstage/templates/new-bucket/template.yaml
+      rules: [{ allow: [Template] }]

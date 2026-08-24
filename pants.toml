@@ -1,0 +1,121 @@
+[GLOBAL]
+pants_version = "2.33.0"
+
+# One build system, four languages. The Python and protobuf-Python backends are
+# stable; go, javascript and typescript are still shipped under
+# `pants.backend.experimental.*` upstream. That is a real risk and it is taken
+# knowingly: the value of a polyglot monorepo is precisely that one tool builds,
+# tests and lints everything, and the escape hatch for any of them is the
+# language's own toolchain, one command away.
+backend_packages = [
+  # Python — stable (ruff lives under experimental.* in 2.33, mypy does not)
+  "pants.backend.python",
+  "pants.backend.experimental.python.lint.ruff.check",
+  "pants.backend.experimental.python.lint.ruff.format",
+  "pants.backend.python.typecheck.mypy",
+  "pants.backend.codegen.protobuf.python",
+
+  # Go — experimental upstream
+  "pants.backend.experimental.go",
+  "pants.backend.experimental.codegen.protobuf.go",
+
+  # Frontend — experimental upstream
+  "pants.backend.experimental.javascript",
+  "pants.backend.experimental.typescript",
+]
+
+# Everything that is not source. dist/ holds `pants package` output — the PEXes
+# and Go binaries that Buildah later copies into images.
+pants_ignore.add = [
+  # Scaffolder templates, not source. Their BUILD files contain nunjucks
+  # placeholders and are not valid Python until Backstage renders them —
+  # Pants would otherwise fail the whole repo with a BuildFileSyntaxError.
+  "/deploy/backstage/templates",
+  "/portal",          # Backstage owns its own Yarn workspace; not ours to build
+  "/modern-devops-wiki",
+  "/raw",
+  # Pants honours only the root .gitignore — `--pants-ignore-use-gitignore`
+  # "does not yet support reading nested gitignore files" — so frontend/.gitignore
+  # does not reach it and `pants tailor` walks into installed packages and build
+  # output.
+  "/frontend/node_modules",
+  "/frontend/dist",
+]
+# `/docs` is deliberately NOT ignored: `checks/` reads the phase files to
+# assemble the single-file edition and to verify every listing still matches
+# the file it names, so Pants has to be able to see them.
+
+[source]
+# Import roots. `protos` is listed so generated code is importable as
+# `shop.v1.pricing_pb2` rather than by a path that leaks the directory layout.
+root_patterns = ["/", "/services/*", "/protos"]
+
+[python]
+interpreter_constraints = [">=3.13,<3.14"]
+enable_resolves = true
+default_resolve = "python-default"
+
+[python.resolves]
+python-default = "locks/python-default.lock"
+
+[python-bootstrap]
+# Where Pants looks for a CPython matching the interpreter constraints above.
+# <PYENV> and <PATH> are the defaults; the Homebrew path is added because
+# `brew install python@3.13` puts an unversioned `python` in libexec/bin that
+# is not on PATH, and without it Pants reports
+# "No working interpreter compatible with the requested constraints was found"
+# while a perfectly good 3.13 sits on disk.
+search_path = ["<PYENV>", "<PATH>", "/opt/homebrew/opt/python@3.13/libexec/bin"]
+
+[python-repos]
+# The supply-chain choke point (§5.1) applies to the build system too. Pants
+# resolves through Nexus, not pypi.org, exactly like uv did before it.
+indexes = ["http://nexus:8081/repository/pypi-proxy/simple"]
+
+[golang]
+# Pants defaults cgo_enabled to TRUE, which produces a dynamically linked
+# binary needing /lib/ld-linux-aarch64.so.1. gcr.io/distroless/static has no
+# libc and no linker, so the pod dies with:
+#   exec /order-worker: no such file or directory
+# — on a file that is present and executable, which is why it reads as a
+# missing binary rather than a missing loader. The original hand-written
+# Dockerfile set CGO_ENABLED=0 for exactly this reason; moving the build into
+# Pants silently dropped it.
+cgo_enabled = false
+
+# Go modules resolve through Nexus. Nothing else is overridden here, and that
+# is the point: `go.sum` records a hash for every module in the build list, so
+# verification happens locally against it and never needs the checksum
+# database. Turning GOSUMDB off would not speed that up — it would only disarm
+# verification for the next dependency someone adds. If a genuinely private
+# module ever arrives, the documented escape is scoped, not global:
+# `GOPRIVATE=github.com/yourorg/*`.
+#
+# -mod=readonly is already Go's default; it is stated because it is
+# load-bearing. Under -mod=mod a build may rewrite go.mod and succeed against a
+# dependency set nobody committed.
+subprocess_env_vars = [
+  "GOPROXY=http://nexus:8081/repository/go-proxy",
+  "GOFLAGS=-mod=readonly",
+  "HOME",
+  "PATH",
+]
+
+[python-protobuf]
+# protoc also emits .pyi stubs for each generated file. Without this, mypy sees
+# pricing_pb2.py building its message classes dynamically via
+# _builder.BuildTopDescriptorsAndMessages(...) into globals() and reports
+# "PriceOrderRequest is not defined" — the classes genuinely do not exist
+# statically. Pants' help prefers this over the older mypy_plugin option.
+generate_type_stubs = true
+
+[mypy]
+install_from_resolve = "python-default"
+
+[test]
+# A test that depends on network or wall-clock is a test that fails in CI at
+# 2am for reasons unrelated to the change. Fail loudly instead.
+timeout_default = 60
+
+[anonymous-telemetry]
+enabled = false
