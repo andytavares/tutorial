@@ -1,0 +1,36 @@
+deploy/platform/istio/peer-authentication.yaml
+  h_16ba00fe96244d 1-17
+deploy/platform/istio/edge-ingress.yaml
+  h_16ba00fe96244d 1-18
+deploy/platform/istio/edge-gateway.yaml
+  h_16ba00fe96244d 1-49
+deploy/charts/order-platform/values.yaml
+  h_16ba00fe96244d 45-53,58-59
+deploy/platform/istio/authorization-policy.yaml
+  h_16ba00fe96244d 1-63
+deploy/charts/order-platform/templates/podmonitor.yaml
+  s_513c4510dbcf04::t_98bfef8d061b41 17-20,22-34,36-53
+deploy/charts/order-platform/templates/servicemonitor.yaml
+  s_513c4510dbcf04::t_e8434860c3f09d 1-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "1251eaf6e0f2e28470a33c2ef176c69f6a1f47e9",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_513c4510dbcf04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e8a40aa2-818d-44cb-b795-8f7ebab27e87",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
