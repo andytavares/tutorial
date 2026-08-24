@@ -3,3 +3,14 @@ __pycache__/
 bin/
 *.pyc
 .DS_Store
+
+# Pants build output
+/dist/
+.pants.d/
+.pids/
+__pycache__/
+
+# `go build` inside a service directory drops a binary named after the module,
+# next to the source. A 27MB compiled binary was tracked here for exactly that
+# reason.
+/services/order-worker/order-worker

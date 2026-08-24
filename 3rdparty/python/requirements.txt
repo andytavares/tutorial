@@ -1,0 +1,39 @@
+# Third-party Python for the whole monorepo, resolved once into
+# locks/python-default.lock. Pants computes per-target dependencies from
+# imports, so a service only ships what it actually uses — one requirements
+# file does not mean one fat PEX.
+#
+# Versions are pinned by the lockfile, which is committed. Pinning here as well
+# would mean two places to update and one of them silently winning.
+
+# --- gRPC + protobuf runtime (generated code needs these at run time) ---
+grpcio
+grpcio-tools
+protobuf
+# The health checking protocol and server reflection are first-party gRPC
+# add-ons, shipped as separate packages by design. Health is what Kubernetes'
+# `grpc:` probe and grpc_health_probe speak; reflection is what lets grpcurl
+# talk to a server without a local copy of the .proto.
+grpcio-health-checking
+grpcio-reflection
+
+# --- order-api ---
+fastapi[standard]==0.139.2
+aiokafka==0.12.0
+boto3==1.40.11
+prometheus-client==0.23.1
+pydantic==2.11.7
+# FastAPI documents pydantic-settings for exactly the job settings.py was doing
+# by hand: parse the environment, cast it, validate it, and report every missing
+# variable at once instead of only the first.
+pydantic-settings==2.7.1
+
+# --- test + typecheck ---
+pytest==8.4.1
+httpx==0.28.1
+mypy
+types-protobuf
+# grpcio ships no py.typed marker, so mypy cannot see its types at all. Verified
+# via `pants export --resolve=python-default` that site-packages has no py.typed
+# under grpc/ — mypy's own suggestion to install these stubs is correct.
+types-grpcio
