@@ -1,0 +1,34 @@
+mypy.ini
+  s_513c4510dbcf04::t_cdcf1efb0e0439 1-35
+services/order-api/BUILD
+  s_513c4510dbcf04::t_408ccfc0398018 1-27
+services/order-api/order_api/main.py
+  s_513c4510dbcf04::t_8e30cfbe973610 30-31,49-50,105,138
+services/order-api/order_api/settings.py
+  s_513c4510dbcf04::t_002ff2a9339811 41
+services/order-api/tests/test_api.py
+  s_513c4510dbcf04::t_a6c05122aa73e2 41
+services/order-worker/BUILD
+  s_513c4510dbcf04::t_5555a3757b1107 1-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "58911efc79261d389c4e106fe0efd57dc05fd8ac",
+  "prompts": {},
+  "humans": {
+    "h_16ba00fe96244d": {
+      "author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_513c4510dbcf04": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "e8a40aa2-818d-44cb-b795-8f7ebab27e87",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Andrew <andrew.tavaes87@gmail.com>"
+    }
+  }
+}
